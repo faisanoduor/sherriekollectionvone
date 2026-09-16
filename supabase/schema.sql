@@ -1,6 +1,5 @@
 -- Sherie Kollections - Stage 1 Supabase database
 -- Run this in Supabase Dashboard > SQL Editor.
--- This stage creates the public product catalogue only.
 
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
@@ -21,11 +20,20 @@ create index if not exists products_category_idx on public.products(category);
 create index if not exists products_active_idx on public.products(is_active);
 create index if not exists products_created_at_idx on public.products(created_at desc);
 
--- Keep the public storefront read-only at this stage.
+-- Admin users are explicitly allow-listed by Supabase Auth user id.
+create table if not exists public.admin_users (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
 alter table public.products enable row level security;
+alter table public.admin_users enable row level security;
 
 revoke all on table public.products from anon, authenticated;
 grant select on table public.products to anon, authenticated;
+grant insert, update, delete on table public.products to authenticated;
+
+grant select on table public.admin_users to authenticated;
 
 drop policy if exists "Public can view active products" on public.products;
 create policy "Public can view active products"
@@ -34,7 +42,35 @@ for select
 to anon, authenticated
 using (is_active = true);
 
--- updated_at helper for future admin updates.
+drop policy if exists "Admins can insert products" on public.products;
+create policy "Admins can insert products"
+on public.products
+for insert
+to authenticated
+with check (exists (select 1 from public.admin_users where user_id = auth.uid()));
+
+drop policy if exists "Admins can update products" on public.products;
+create policy "Admins can update products"
+on public.products
+for update
+to authenticated
+using (exists (select 1 from public.admin_users where user_id = auth.uid()))
+with check (exists (select 1 from public.admin_users where user_id = auth.uid()));
+
+drop policy if exists "Admins can delete products" on public.products;
+create policy "Admins can delete products"
+on public.products
+for delete
+to authenticated
+using (exists (select 1 from public.admin_users where user_id = auth.uid()));
+
+drop policy if exists "Admins can view admin list" on public.admin_users;
+create policy "Admins can view admin list"
+on public.admin_users
+for select
+to authenticated
+using (user_id = auth.uid());
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
