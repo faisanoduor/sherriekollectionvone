@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Product | Sherie Kollections</title>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <nav class="nav">
+            <div class="container nav-inner">
+                <a class="brand" href="index.html">SHERIE <span>KOLLECTIONS</span></a>
+                <div class="navlinks">
+                    <a href="shop.html">Shop</a>
+                    <a href="cart.html">Bag (<span data-cart-count>0</span>)</a>
+                </div>
+                <button class="icon-btn" data-theme-toggle>◐</button>
+            </div>
+        </nav>
+        <main class="container" id="product"></main>
+        <script src="js/app.js"></script>
+        <script>
+            const p=products.find(x=>x.id===new URLSearchParams(location.search).get("id"))||products[0];
+            let size=p.sizes?.[0]||"";
+            document.title=p.name+" | Sherie Kollections";
+            product.innerHTML=`<div class="product-layout"><div><img id="mainpic" class="gallery-main" src="${p.image}" onerror="this.src='images/placeholder.svg'"><div class="thumbs"><img class="active" src="${p.image}" onclick="mainpic.src=this.src"></div></div><div><span class="badge">${p.category}</span><h1>${p.name}</h1><div class="price" style("font-size:28px")>${money(p.price)}</div><p class("muted")>${p.description}</p><h4>Size</h4><div class("sizes")>${(p.sizes||[]).map((s,i)=>`<button class("size ${i===0?'active':''}") onclick("size='${s}';document.querySelectorAll('.size').forEach(x=>x.classList.remove('active'));this.classList.add('active')")>${s}</button>`).join("")}</div><h4>Quantity</h4><div class("qty")><button onclick("chg(-1)")>−</button><span id("qty")>1</span><button onclick("chg(1)")>+</button></div><div style("display:flex;gap:10px;margin-top:18px")><button class("btn gold") onclick("addToCart(p.id,+qty.textContent,size)")>Add to bag</button><a class("btn ghost") href("checkout.html")>Checkout</a></div><hr style("border:0;border-top:1px solid var(--border);margin:30px 0")><h3>Reviews</h3><div class("card") style("padding:18px")><p>★★★★★</p><p class("muted")>Beautiful quality and fit. — Verified customer</p></div></div></div><section class("section")><div class("section-head")><h2>Related products</h2></div><div class("grid") id("related")></div></section>`;
+            function chg(n){
+                qty.textContent=Math.max(1,Math.min(p.stock,+qty.textContent+n))
+            }
+            renderProducts("#related",products.filter(x=>x.category===p.category&&x.id!==p.id).slice(0,4));
+        </script>
+    </body>
+</html>

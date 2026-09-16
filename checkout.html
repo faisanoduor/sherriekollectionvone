@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Checkout | Sherie Kollections</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav-inner">
+            <a class="brand" href="index.html">SHERIE <span>KOLLECTIONS</span></a>
+        </div>
+    </nav>
+    <main class="container section">
+        <div class="eyebrow">Almost yours</div>
+        <h1>Checkout</h1>
+        <div class="cart-layout">
+            <form class="card" id="form" style="padding:25px">
+                <div class="form-grid">
+                    <label>Name
+                        <input class="field" name="name" required>
+                    </label>
+                    <label>Phone
+                        <input class="field" name="phone" required placeholder="07xx xxx xxx">
+                    </label>
+                    <label>Email
+                        <input class="field" name="email" type="email">
+                    </label>
+                    <label>Location
+                        <input class="field" name="location" required placeholder="Nairobi / delivery area">
+                    </label>
+                    <label class="full">Notes
+                        <textarea class="field" name="notes" rows="4"></textarea>
+                    </label>
+                </div>
+                <h3 style("margin-top:25px")>M-Pesa</h3>
+                <div class("promo")><p>${CONFIG.mpesa.instructions}</p><p><strong>Paybill: ${CONFIG.mpesa.paybill}</strong><br>Account: <strong>${CONFIG.mpesa.account}</strong></p><p class("muted") style("color:#ddd")>After payment, use WhatsApp below to send your order details and payment confirmation.</p></div>
+                <button class("btn gold") style("margin-top:18px") type("submit")>Save order & WhatsApp</button>
+            </form>
+            <aside class("card summary")><h2>Order total</h2><div id("summary")></div></aside>
+        </div>
+    </main>
+    <script src("js/app.js")></script>
+    <script>
+        let subtotal=cart.reduce((a,i)=>a+products.find(p=>p.id===i.id).price*i.qty,0),delivery=subtotal>=CONFIG.freeDeliveryAt?0:CONFIG.deliveryFee,total=subtotal+delivery;summary.innerHTML=`<div class("line")><span>Subtotal</span><b>${money(subtotal)}</b></div><div class("line")><span>Delivery</span><b>${delivery?money(delivery):"FREE"}</b></div><div class("total line")><span>Total</span><b>${money(total)}</b></div>`;form.onsubmit=e=>{e.preventDefault();if(!cart.length)return toast("Your bag is empty.");let fd=new FormData(form),order={id:"SK-"+Date.now().toString().slice(-7),createdAt:new Date().toISOString(),status:"Pending",items:cart.map(i=>{let p=products.find(x=>x.id===i.id);return {...i,name:p.name,price:p.price}}),customer:Object.fromEntries(fd),subtotal,delivery,total};let orders=load("sk_orders",[]);orders.push(order);save("sk_orders",orders);save("sk_cart",[]);location.href=waLink(order)};
+    </script>
+</body>
+</html>

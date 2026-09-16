@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Admin | Sherie Kollections</title>
+        <link rel="stylesheet" href="../css/style.css">
+    </head>
+    <body>
+        <nav class="nav">
+            <div class="container nav-inner">
+                <a class="brand" href="../index.html">SHERIE <span>ADMIN</span></a>
+                <div class="navlinks">
+                    <a href="../shop.html">View shop</a>
+                </div>
+                <button class="icon-btn" data-theme-toggle>◐</button>
+            </div>
+        </nav>
+        <main class="container section">
+            <div class="admin-grid">
+                <aside class="card admin-side">
+                    <h3>Dashboard</h3>
+                    <p class="muted">Manage catalogue and orders. This standalone demo stores data in this browser's localStorage.</p>
+                    <button class="btn gold" onclick="resetDemo()">Reset demo products</button>
+                </aside>
+                <section>
+                    <div class="section-head">
+                        <div>
+                            <div class="eyebrow">Catalogue</div>
+                            <h1>Products</h1>
+                        </div>
+                        <button class="btn gold" onclick="openForm()">+ Add product</button>
+                    </div>
+                    <div class="card table-wrap">
+                        <table class="table" id="ptable"></table>
+                    </div>
+                    <div style="margin-top:45px" class="section-head">
+                        <div>
+                            <div class="eyebrow">Sales</div>
+                            <h2>Orders</h2>
+                        </div>
+                    </div>
+                    <div class="card table-wrap">
+                        <table class="table" id="otable"></table>
+                    </div>
+                </section>
+            </div>
+        </main>
+        <div id="modal" style="display:none;position:fixed;inset:0;background:#0008;z-index:50;padding:30px;overflow:auto">
+            <div class="card container" style="max-width:700px;padding:25px">
+                <h2 id="mtitle">Add product</h2>
+                <form id="pf">
+                    <div class="form-grid">
+                        <input type="hidden" name="id">
+                        <label>Name<input class="field" name="name" required></label>
+                        <label>Category<input class="field" name="category" required></label>
+                        <label>Price<input class="field" name="price" type="number" required></label>
+                        <label>Stock<input class="field" name="stock" type="number" required></label>
+                        <label>Sizes<input class="field" name="sizes" placeholder="S,M,L"></label>
+                        <label>Image<input class="field" name="image" type="file" accept="image/*"></label>
+                        <label class="full">Description<textarea class="field" name="description"></textarea></label>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:18px">
+                        <button class="btn gold">Save</button>
+                        <button type="button" class="btn ghost" onclick="closeForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <script src="../js/app.js"></script>
+        <script>
+function draw(){ptable.innerHTML='<tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th></tr>'+products.map(p=>`<tr><td>${p.name}</td><td>${p.category}</td><td>${money(p.price)}</td><td>${p.stock}</td><td><button onclick="edit('${p.id}')">Edit</button> <button onclick="del('${p.id}')">Delete</button></td></tr>`).join("");let orders=load("sk_orders",[]);otable.innerHTML='<tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Action</th></tr>'+orders.map((o,i)=>`<tr><td>${o.id}</td><td>${o.customer.name}<br>${o.customer.phone}</td><td>${money(o.total)}</td><td>${o.status}</td><td><select onchange="status(${i},this.value)"><option ${o.status==="Pending"?"selected":""}>Pending</option><option ${o.status==="Paid"?"selected":""}>Paid</option><option ${o.status==="Processing"?"selected":""}>Processing</option><option ${o.status==="Completed"?"selected":""}>Completed</option><option ${o.status==="Cancelled"?"selected":""}>Cancelled</option></select></td></tr>`).join("")||'<tr><td colspan="5">No orders yet.</td></tr>'}function openForm(p={}){modal.style.display="block";pf.reset();Object.keys(p).forEach(k=>{if(pf.elements[k]&&k!=="image")pf.elements[k].value=Array.isArray(p[k])?p[k].join(","):p[k]})}function closeForm(){modal.style.display="none"}function edit(id){openForm(products.find(p=>p.id===id))}function del(id){if(confirm("Delete this product?")){products=products.filter(p=>p.id!==id);save("sk_products",products);draw()}}function status(i,v){let o=load("sk_orders",[]);o[i].status=v;save("sk_orders",o);draw()}function resetDemo(){if(confirm("Reset products to demo defaults?")){products=seedProducts;save("sk_products",products);draw()}}pf.onsubmit=e=>{e.preventDefault();let f=new FormData(pf),id=f.get("id")||"p"+Date.now(),old=products.find(p=>p.id===id)||{};let finish=image=>{let p={id,name:f.get("name"),category:f.get("category"),price:+f.get("price"),stock:+f.get("stock"),sizes:f.get("sizes").split(",").map(x=>x.trim()).filter(Boolean),image:image||old.image||"../images/placeholder.svg",description:f.get("description")};let idx=products.findIndex(x=>x.id===id);if(idx>=0)products[idx]=p;else products.push(p);save("sk_products",products);closeForm();draw()};let file=f.get("image");if(file&&file.size){let r=new FileReader;r.onload=()=>finish(r.result);r.readAsDataURL(file)}else finish()};draw();</script></body></html>

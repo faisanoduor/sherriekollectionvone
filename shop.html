@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Shop | Sherie Kollections</title>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <nav class="nav">
+            <div class="container nav-inner">
+                <a class="brand" href="index.html">SHERIE <span>KOLLECTIONS</span></a>
+                <div class="navlinks">
+                    <a href="shop.html">Shop</a>
+                    <a href="cart.html">Bag (<span data-cart-count>0</span>)</a>
+                </div>
+                <div class="nav-actions">
+                    <button class="icon-btn" data-theme-toggle>◐</button>
+                </div>
+            </div>
+        </nav>
+        <main class="section">
+            <div class="container">
+                <div class="eyebrow">The collection</div>
+                <h1>Shop all</h1>
+                <div class="filters">
+                    <input id="q" placeholder="Search products...">
+                    <select id="cat">
+                        <option value="">All categories</option>
+                    </select>
+                    <input id="max" type="number" placeholder="Max price (KES)">
+                    <select id="sort">
+                        <option value="new">Newest</option>
+                        <option value="low">Price: low to high</option>
+                        <option value="high">Price: high to low</option>
+                        <option value="az">Name A–Z</option>
+                    </select>
+                </div>
+                <div class="grid" id="products"></div>
+            </div>
+        </main>
+        <script src="js/app.js"></script>
+        <script>
+            const cats=[...new Set(products.map(p=>p.category))];
+            cats.forEach(c=>cat.insertAdjacentHTML("beforeend",`<option>${c}</option>`));
+            let params=new URLSearchParams(location.search);cat.value=params.get("category")||"";
+            function filter(){let a=products.filter(p=>(p.name.toLowerCase().includes(q.value.toLowerCase())||p.category.toLowerCase().includes(q.value.toLowerCase()))&&(!cat.value||p.category===cat.value)&&(!max.value||p.price<=+max.value));if(sort.value==="low")a.sort((x,y)=>x.price-y.price);if(sort.value==="high")a.sort((x,y)=>y.price-x.price);if(sort.value==="az")a.sort((x,y)=>x.name.localeCompare(y.name));renderProducts("#products",a)}[q,cat,max,sort].forEach(x=>x.oninput=x.onchange=filter);filter();
+        </script>
+    </body>
+</html>
