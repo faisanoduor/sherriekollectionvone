@@ -1,64 +1,80 @@
-# Supabase setup — Stage 1
+# Supabase setup — Sherie Kollections
 
-Stage 1 moves the Sherie Kollections **product catalogue** toward Supabase while keeping the existing local catalogue as a fallback.
+## 1. Database
 
-## 1. Create a Supabase project
+Open Supabase **SQL Editor** and run the complete contents of `supabase/schema.sql`.
 
-Create a project in Supabase and open **SQL Editor**.
+The schema creates:
 
-## 2. Create the products table
+- `products` — the storefront catalogue
+- `admin_users` — an explicit allow-list for dashboard users
+- Row Level Security policies
+- Admin insert/update/delete permissions
+- Automatic `updated_at` timestamps
 
-Run:
+The public storefront can read active products. Only authenticated users whose UUID is in `admin_users` can manage products or view inactive products.
+
+## 2. Product migration
+
+If the existing products have not yet been imported, use `supabase/migrate-products.html` to generate SQL from the current `js/app.js` catalogue, then run that SQL in Supabase SQL Editor.
+
+Review the generated SQL before running it.
+
+## 3. Browser credentials
+
+`js/supabase.js` contains the Supabase project URL and publishable/anon key.
+
+A publishable/anon key is intended for browser use when Row Level Security is configured correctly.
+
+**Never put a Supabase `service_role` or secret key in frontend JavaScript.**
+
+## 4. Create the first admin account
+
+In Supabase Dashboard:
+
+1. Open **Authentication → Users**.
+2. Create a user with the email/password you want to use for the Sherie Kollections admin dashboard.
+3. Copy that user's **User UID**.
+4. In **SQL Editor**, run:
+
+```sql
+insert into public.admin_users (user_id)
+values ('PASTE_USER_UID_HERE');
+```
+
+Replace `PASTE_USER_UID_HERE` with the actual UUID.
+
+After that, open the website's `/admin/` page and sign in with that account.
+
+## 5. Admin dashboard features
+
+The new `/admin/` dashboard supports:
+
+- Secure Supabase Auth login
+- Admin allow-list verification
+- Product search
+- Category and status filters
+- Product statistics
+- Add products
+- Edit products
+- Change price, stock, sizes and description
+- Set an image URL
+- Publish/hide products
+- Delete products
+- Existing local order-status view
+
+Product changes are written directly to Supabase and are therefore used by the storefront on its next load.
+
+## 6. Product images
+
+For now, the dashboard accepts an image URL/path. Existing repository images can use paths such as:
 
 ```text
-supabase/schema.sql
+images/monks1.jpeg
 ```
 
-The table is protected by Row Level Security and the storefront is allowed to read only active products.
+A later storage stage can move these images into a Supabase Storage bucket and add image upload/replace/delete functionality.
 
-## 3. Add products
+## 7. Important
 
-The current website still contains the original catalogue in `js/app.js`. Add those products to the new `products` table before relying on Supabase as the main catalogue.
-
-Use these mappings:
-
-- `id` — leave blank so Supabase generates a UUID
-- `legacy_id` — existing product ID such as `p1`
-- `name` — product name
-- `category` — product category
-- `price` — price in KES
-- `stock` — available quantity
-- `sizes` — array such as `{S,M,L,XL}`
-- `image_url` — existing GitHub image path, for example `images/monks1.jpeg`
-- `description` — product description
-- `is_active` — `true`
-
-## 4. Add the Supabase browser credentials
-
-Open:
-
-```text
-js/supabase.js
-```
-
-Replace:
-
-```js
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY";
-```
-
-with the project's URL and **publishable/anon key**.
-
-Do **not** put a `service_role` or secret key in this repository or in browser JavaScript.
-
-## 5. What is already wired
-
-- `index.html` loads active products from Supabase for New Arrivals.
-- `shop.html` loads active products from Supabase for search, category, price and sorting.
-- If Supabase is not configured or returns no products, the existing local catalogue remains available.
-- Product objects are normalized back to the same shape used by the current storefront, so the existing rendering/cart code can continue to work.
-
-## 6. Next stage
-
-After the catalogue is confirmed working, Stage 2 can move product management into the admin area and add Supabase Storage for product images. Stage 3 can then add the AI shopping assistant through a server-side Edge Function so an AI API secret is never exposed in the browser.
+Run the updated `schema.sql` **before trying to save products from the dashboard**. Otherwise the dashboard will load products but database writes will be rejected by the existing read-only policies.
