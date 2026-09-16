@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sherie Kollections - Product Migration</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:1000px;margin:40px auto;padding:0 20px;line-height:1.5}
+    button{padding:10px 16px;margin:8px 8px 8px 0;cursor:pointer}
+    textarea{width:100%;min-height:420px;font-family:monospace;font-size:13px}
+    .ok{color:green}.warn{color:#9a6700}.err{color:#b42318}
+  </style>
+</head>
+<body>
+  <h1>Product Migration</h1>
+  <p>This utility reads the existing <code>seedProducts</code> catalogue from <code>js/app.js</code> and generates safe SQL for the Supabase <code>products</code> table.</p>
+  <p class="warn"><strong>Important:</strong> This page only generates SQL. It does not send product data to Supabase.</p>
+  <button id="generate">Generate SQL</button>
+  <button id="copy" disabled>Copy SQL</button>
+  <p id="status"></p>
+  <textarea id="sql" placeholder="Generated SQL will appear here..."></textarea>
+
+<script>
+const statusEl = document.getElementById("status");
+const sqlEl = document.getElementById("sql");
+const copyBtn = document.getElementById("copy");
+
+function sqlString(value) {
+  return "'" + String(value ?? "").replace(/'/g, "''") + "'";
+}
+
+function sqlArray(values) {
+  if (!Array.isArray(values) || values.length === 0) return "'{}'";
+  return "ARRAY[" + values.map(sqlString).join(", ") + "]::text[]";
+}
+
+async function loadSeedProducts() {
+  const response = await fetch("../js/app.js", { cache: "no-store" });
+  if (!response.ok) throw new Error("Could not read js/app.js (HTTP " + response.status + ")");
+  const source = await response.text();
+  const start = source.indexOf("const seedProducts = [");
+  const end = source.indexOf("];\nconst load =", start);
+  if (start < 0 || end < 0) throw new Error("Could not locate seedProducts in js/app.js");
+  const arraySource = source.slice(start + "const seedProducts = ".length, end + 1);
+  return Function("return " + arraySource)();
+}
+
+function buildSql(products) {
+  const used = new Map();
+  const rows = products.map((p, index) => {
+    const base = String(p.id || "p" + (index + 1));
+    const count = (used.get(base) || 0) + 1;
+    used.set(base, count);
+    const legacyId = count === 1 ? base : base + "-" + count;
+    const stock = Number.isFinite(Number(p.stock)) ? Math.max(0, Number(p.stock)) : 0;
+    return "(" + [
+      sqlString(legacyId),
+      sqlString(p.name),
+      sqlString(p.category),
+      Number(p.price) || 0,
+      stock,
+      sqlArray(p.sizes),
+      sqlString(p.image || ""),
+      sqlString(p.description || "")
+    ].join(", ") + ")";
+  });
+
+  return `-- Sherie Kollections Stage 1 product migration\n-- Generated from the current js/app.js seedProducts catalogue.\n-- Duplicate legacy IDs are automatically suffixed (-2, -3, etc.).\n\ninsert into public.products\n  (legacy_id, name, category, price, stock, sizes, image_url, description)\nvalues\n  ${rows.join(",\n  ")};\n\n-- Verify the imported catalogue.\nselect legacy_id, name, category, price, stock, image_url\nfrom public.products\norder by created_at desc;`;
+}
+
+document.getElementById("generate").onclick = async () => {
+  try {
+    statusEl.className = "";
+    statusEl.textContent = "Reading the current catalogue...";
+    const products = await loadSeedProducts();
+    sqlEl.value = buildSql(products);
+    copyBtn.disabled = false;
+    statusEl.className = "ok";
+    statusEl.textContent = `Generated migration SQL for ${products.length} products. Review it, copy it, and run it in Supabase SQL Editor.`;
+  } catch (error) {
+    statusEl.className = "err";
+    statusEl.textContent = error.message;
+  }
+};
+
+copyBtn.onclick = async () => {
+  await navigator.clipboard.writeText(sqlEl.value);
+  statusEl.className = "ok";
+  statusEl.textContent = "SQL copied to clipboard.";
+};
+</script>
+</body>
+</html>
