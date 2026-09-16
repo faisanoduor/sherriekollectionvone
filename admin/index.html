@@ -6,19 +6,13 @@
   <title>Admin | Sherie Kollections</title>
   <link rel="stylesheet" href="../css/style.css">
   <style>
-    .admin-shell{display:grid;grid-template-columns:220px 1fr;gap:24px}
-    .admin-side{height:max-content;position:sticky;top:90px}
-    .admin-side a{display:block;padding:10px 0;text-decoration:none}
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
-    .stat{padding:18px}.stat strong{display:block;font-size:28px;margin-top:5px}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}.toolbar .field{min-width:180px}
-    .table td,.table th{vertical-align:middle}.thumb{width:52px;height:52px;object-fit:cover;border-radius:8px;background:#eee}
-    .badge{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px}.badge.on{background:#e6f7ed;color:#18794e}.badge.off{background:#f2f2f2;color:#666}
-    .actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{border:0;padding:7px 10px;border-radius:6px;cursor:pointer}
-    .modal{display:none;position:fixed;inset:0;background:#0008;z-index:100;padding:20px;overflow:auto}.modal.open{display:flex;align-items:flex-start;justify-content:center}
-    .modal-card{width:min(760px,100%);margin:30px auto;padding:25px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}
-    .auth{max-width:460px;margin:80px auto}.error{color:#b42318;margin:10px 0}.success{color:#18794e;margin:10px 0}
-    @media(max-width:850px){.admin-shell{grid-template-columns:1fr}.admin-side{position:static}.stats{grid-template-columns:repeat(2,1fr)}.table-wrap{overflow:auto}.form-grid{grid-template-columns:1fr}}
+    .admin-shell{display:grid;grid-template-columns:220px 1fr;gap:24px}.admin-side{height:max-content;position:sticky;top:90px}.admin-side a{display:block;padding:10px 0;text-decoration:none}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}.stat{padding:18px}.stat strong{display:block;font-size:28px;margin-top:5px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}.toolbar .field{min-width:180px}.table td,.table th{vertical-align:middle}.thumb{width:52px;height:52px;object-fit:cover;border-radius:8px;background:#eee}
+    .badge{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px}.badge.on{background:#e6f7ed;color:#18794e}.badge.off{background:#f2f2f2;color:#666}.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{border:0;padding:7px 10px;border-radius:6px;cursor:pointer}
+    .modal{display:none;position:fixed;inset:0;background:#0008;z-index:100;padding:20px;overflow:auto}.modal.open{display:flex;align-items:flex-start;justify-content:center}.modal-card{width:min(760px,100%);margin:30px auto;padding:25px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}
+    .auth{max-width:460px;margin:80px auto}.error{color:#b42318;margin:10px 0}.success{color:#18794e;margin:10px 0}.image-upload{display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:start}.image-preview{width:130px;height:130px;border-radius:10px;object-fit:cover;background:#eee;border:1px solid #ddd}.upload-help{font-size:13px;margin-top:6px}
+    @media(max-width:850px){.admin-shell{grid-template-columns:1fr}.admin-side{position:static}.stats{grid-template-columns:repeat(2,1fr)}.table-wrap{overflow:auto}.form-grid{grid-template-columns:1fr}.image-upload{grid-template-columns:1fr}.image-preview{width:110px;height:110px}}
   </style>
 </head>
 <body>
@@ -31,134 +25,87 @@
     <section id="loginView" class="card auth" style="display:none;padding:28px">
       <div class="eyebrow">Secure access</div><h1>Admin login</h1>
       <p class="muted">Sign in with the Supabase account that has been added as a Sherie Kollections admin.</p>
-      <form id="loginForm">
-        <label>Email<input class="field" id="email" type="email" required autocomplete="email"></label>
-        <label style="display:block;margin-top:12px">Password<input class="field" id="password" type="password" required autocomplete="current-password"></label>
-        <p id="loginMsg" class="error"></p><button class="btn gold" style="width:100%;margin-top:10px">Sign in</button>
-      </form>
+      <form id="loginForm"><label>Email<input class="field" id="email" type="email" required autocomplete="email"></label><label style="display:block;margin-top:12px">Password<input class="field" id="password" type="password" required autocomplete="current-password"></label><p id="loginMsg" class="error"></p><button class="btn gold" style="width:100%;margin-top:10px">Sign in</button></form>
     </section>
 
-    <section id="deniedView" class="card auth" style="display:none;padding:28px">
-      <div class="eyebrow">Access denied</div><h1>Not an admin</h1>
-      <p class="muted">This Supabase account is authenticated but is not on the admin allow-list.</p>
-      <button class="btn ghost" onclick="signOut()">Sign out</button>
-    </section>
+    <section id="deniedView" class="card auth" style="display:none;padding:28px"><div class="eyebrow">Access denied</div><h1>Not an admin</h1><p class="muted">This Supabase account is authenticated but is not on the admin allow-list.</p><button class="btn ghost" onclick="signOut()">Sign out</button></section>
 
-    <section id="dashboardView" style="display:none">
-      <div class="admin-shell">
-        <aside class="card admin-side" style="padding:20px">
-          <div class="eyebrow">Dashboard</div><h3>Catalogue</h3>
-          <p class="muted" style="font-size:14px">Products are stored in Supabase. Changes here are immediately available to the storefront.</p>
-          <a href="#products">Products</a><a href="#orders">Orders</a>
-          <button class="btn ghost" onclick="signOut()" style="margin-top:12px">Sign out</button>
-        </aside>
-
-        <section>
-          <div class="section-head"><div><div class="eyebrow">Store management</div><h1>Product dashboard</h1><p id="adminEmail" class="muted"></p></div><button class="btn gold" onclick="openProduct()">+ Add product</button></div>
-
-          <div class="stats">
-            <div class="card stat"><span class="muted">Total products</span><strong id="totalCount">0</strong></div>
-            <div class="card stat"><span class="muted">Active</span><strong id="activeCount">0</strong></div>
-            <div class="card stat"><span class="muted">Out of stock</span><strong id="outCount">0</strong></div>
-            <div class="card stat"><span class="muted">Categories</span><strong id="categoryCount">0</strong></div>
-          </div>
-
-          <div id="products" class="card" style="padding:20px">
-            <div class="section-head"><div><div class="eyebrow">Catalogue</div><h2>Products</h2></div></div>
-            <div class="toolbar">
-              <input id="search" class="field" placeholder="Search products...">
-              <select id="categoryFilter" class="field"><option value="">All categories</option></select>
-              <select id="statusFilter" class="field"><option value="">All status</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="out">Out of stock</option></select>
-            </div>
-            <p id="productMsg" class="muted"></p>
-            <div class="table-wrap"><table class="table" id="ptable"></table></div>
-          </div>
-
-          <div id="orders" class="card" style="padding:20px;margin-top:30px">
-            <div class="section-head"><div><div class="eyebrow">Sales</div><h2>Orders</h2></div></div>
-            <div class="table-wrap"><table class="table" id="otable"></table></div>
-          </div>
-        </section>
-      </div>
-    </section>
+    <section id="dashboardView" style="display:none"><div class="admin-shell">
+      <aside class="card admin-side" style="padding:20px"><div class="eyebrow">Dashboard</div><h3>Catalogue</h3><p class="muted" style="font-size:14px">Products are stored in Supabase. Changes here are immediately available to the storefront.</p><a href="#products">Products</a><a href="#orders">Orders</a><button class="btn ghost" onclick="signOut()" style="margin-top:12px">Sign out</button></aside>
+      <section>
+        <div class="section-head"><div><div class="eyebrow">Store management</div><h1>Product dashboard</h1><p id="adminEmail" class="muted"></p></div><button class="btn gold" onclick="openProduct()">+ Add product</button></div>
+        <div class="stats"><div class="card stat"><span class="muted">Total products</span><strong id="totalCount">0</strong></div><div class="card stat"><span class="muted">Active</span><strong id="activeCount">0</strong></div><div class="card stat"><span class="muted">Out of stock</span><strong id="outCount">0</strong></div><div class="card stat"><span class="muted">Categories</span><strong id="categoryCount">0</strong></div></div>
+        <div id="products" class="card" style="padding:20px"><div class="section-head"><div><div class="eyebrow">Catalogue</div><h2>Products</h2></div></div><div class="toolbar"><input id="search" class="field" placeholder="Search products..."><select id="categoryFilter" class="field"><option value="">All categories</option></select><select id="statusFilter" class="field"><option value="">All status</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="out">Out of stock</option></select></div><p id="productMsg" class="muted"></p><div class="table-wrap"><table class="table" id="ptable"></table></div></div>
+        <div id="orders" class="card" style="padding:20px;margin-top:30px"><div class="section-head"><div><div class="eyebrow">Sales</div><h2>Orders</h2></div></div><div class="table-wrap"><table class="table" id="otable"></table></div></div>
+      </section>
+    </div></section>
   </main>
 
-  <div id="productModal" class="modal">
-    <div class="card modal-card">
-      <div class="section-head"><div><div class="eyebrow">Catalogue</div><h2 id="modalTitle">Add product</h2></div><button class="icon-btn" type="button" onclick="closeProduct()">×</button></div>
-      <form id="productForm">
-        <input type="hidden" id="productId">
-        <div class="form-grid">
-          <label>Name<input class="field" id="pName" required></label>
-          <label>Category<input class="field" id="pCategory" required placeholder="Tops, Shoes, Bags..."></label>
-          <label>Price (KES)<input class="field" id="pPrice" type="number" min="0" step="0.01" required></label>
-          <label>Stock<input class="field" id="pStock" type="number" min="0" step="1" required></label>
-          <label>Sizes<input class="field" id="pSizes" placeholder="S,M,L,XL"></label>
-          <label>Image URL<input class="field" id="pImage" placeholder="images/product.jpeg"></label>
-          <label class="full">Description<textarea class="field" id="pDescription" rows="4"></textarea></label>
-          <label class="full"><input id="pActive" type="checkbox" checked> Product is active and visible in the shop</label>
-        </div>
-        <p id="formMsg" class="error"></p>
-        <div style="display:flex;gap:10px;margin-top:18px"><button class="btn gold">Save product</button><button type="button" class="btn ghost" onclick="closeProduct()">Cancel</button></div>
-      </form>
-    </div>
-  </div>
+  <div id="productModal" class="modal"><div class="card modal-card">
+    <div class="section-head"><div><div class="eyebrow">Catalogue</div><h2 id="modalTitle">Add product</h2></div><button class="icon-btn" type="button" onclick="closeProduct()">×</button></div>
+    <form id="productForm"><input type="hidden" id="productId"><div class="form-grid">
+      <label>Name<input class="field" id="pName" required></label><label>Category<input class="field" id="pCategory" required placeholder="Tops, Shoes, Bags..."></label>
+      <label>Price (KES)<input class="field" id="pPrice" type="number" min="0" step="0.01" required></label><label>Stock<input class="field" id="pStock" type="number" min="0" step="1" required></label>
+      <label>Sizes<input class="field" id="pSizes" placeholder="S,M,L,XL"></label>
+      <div><label>Product image</label><div class="image-upload"><img id="imagePreview" class="image-preview" src="../images/placeholder.svg" alt="Product preview"><div><input class="field" id="pImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><div class="upload-help muted">Choose JPG, PNG, WEBP or GIF. The image will be uploaded securely to Supabase Storage.</div><input type="hidden" id="pImage"><div id="uploadMsg" class="muted" style="margin-top:8px"></div></div></div></div>
+      <label class="full">Description<textarea class="field" id="pDescription" rows="4"></textarea></label><label class="full"><input id="pActive" type="checkbox" checked> Product is active and visible in the shop</label>
+    </div><p id="formMsg" class="error"></p><div style="display:flex;gap:10px;margin-top:18px"><button id="saveProductBtn" class="btn gold">Save product</button><button type="button" class="btn ghost" onclick="closeProduct()">Cancel</button></div></form>
+  </div></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../js/supabase.js"></script>
   <script>
-    const $ = id => document.getElementById(id);
-    let adminProducts = [];
-
+    const $=id=>document.getElementById(id);let adminProducts=[];
     function show(view){$("loginView").style.display=view==="login"?"block":"none";$("deniedView").style.display=view==="denied"?"block":"none";$("dashboardView").style.display=view==="dashboard"?"block":"none"}
-    function message(text, type="error"){const el=$("productMsg");el.textContent=text;el.className=type}
+    function message(text,type="error"){const el=$("productMsg");el.textContent=text;el.className=type}
     function esc(value){return String(value??"").replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+    function placeholder(){return "../images/placeholder.svg"}
 
-    async function isAdmin(){
-      const {data:{user}}=await supabaseClient.auth.getUser();
-      if(!user)return null;
-      const {data,error}=await supabaseClient.from("admin_users").select("user_id").eq("user_id",user.id).maybeSingle();
-      if(error){console.error(error);return false}
-      return data?user:false;
-    }
-
-    async function boot(){
-      if(!supabaseClient){show("login");$("loginMsg").textContent="Supabase is not configured.";return}
-      const user=await isAdmin();
-      if(user){show("dashboard");$("adminEmail").textContent=user.email||"";await loadProducts();drawOrders();}
-      else {const {data:{session}}=await supabaseClient.auth.getSession();show(session?"denied":"login")}
-    }
-
+    async function isAdmin(){const {data:{user}}=await supabaseClient.auth.getUser();if(!user)return null;const {data,error}=await supabaseClient.from("admin_users").select("user_id").eq("user_id",user.id).maybeSingle();if(error){console.error(error);return false}return data?user:false}
+    async function boot(){if(!supabaseClient){show("login");$("loginMsg").textContent="Supabase is not configured.";return}const user=await isAdmin();if(user){show("dashboard");$("adminEmail").textContent=user.email||"";await loadProducts();drawOrders()}else{const {data:{session}}=await supabaseClient.auth.getSession();show(session?"denied":"login")}}
     $("loginForm").onsubmit=async e=>{e.preventDefault();$("loginMsg").textContent="Signing in...";const {error}=await supabaseClient.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error){$("loginMsg").textContent=error.message;return}boot()};
     async function signOut(){await supabaseClient.auth.signOut();show("login")}
 
-    async function loadProducts(){
-      message("Loading products...");
-      const {data,error}=await supabaseClient.from("products").select("id,legacy_id,name,category,price,stock,sizes,image_url,description,is_active,created_at,updated_at").order("created_at",{ascending:false});
-      if(error){message("Could not load products: "+error.message);return}
-      adminProducts=data||[];updateStats();populateCategories();renderProducts();message(adminProducts.length+" products loaded.","success");
-    }
-
-    function updateStats(){
-      $("totalCount").textContent=adminProducts.length;$("activeCount").textContent=adminProducts.filter(p=>p.is_active).length;$("outCount").textContent=adminProducts.filter(p=>Number(p.stock)<=0).length;$("categoryCount").textContent=new Set(adminProducts.map(p=>p.category)).size;
-    }
+    async function loadProducts(){message("Loading products...");const {data,error}=await supabaseClient.from("products").select("id,legacy_id,name,category,price,stock,sizes,image_url,description,is_active,created_at,updated_at").order("created_at",{ascending:false});if(error){message("Could not load products: "+error.message);return}adminProducts=data||[];updateStats();populateCategories();renderProducts();message(adminProducts.length+" products loaded.","success")}
+    function updateStats(){$("totalCount").textContent=adminProducts.length;$("activeCount").textContent=adminProducts.filter(p=>p.is_active).length;$("outCount").textContent=adminProducts.filter(p=>Number(p.stock)<=0).length;$("categoryCount").textContent=new Set(adminProducts.map(p=>p.category)).size}
     function populateCategories(){const current=$("categoryFilter").value;$("categoryFilter").innerHTML='<option value="">All categories</option>'+[...new Set(adminProducts.map(p=>p.category))].sort().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");$("categoryFilter").value=current}
     function filtered(){const q=$("search").value.trim().toLowerCase(),cat=$("categoryFilter").value,status=$("statusFilter").value;return adminProducts.filter(p=>(!q||p.name.toLowerCase().includes(q)||p.category.toLowerCase().includes(q))&&(!cat||p.category===cat)&&(!status||(status==="active"?p.is_active:status==="inactive"?!p.is_active:Number(p.stock)<=0)))}
-    function renderProducts(){const rows=filtered();$("ptable").innerHTML='<tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr>'+rows.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><img class="thumb" src="${esc(p.image_url||"../images/placeholder.svg")}" onerror="this.style.visibility='hidden'"><div><strong>${esc(p.name)}</strong><br><small class="muted">${esc(p.legacy_id||p.id)}</small></div></div></td><td>${esc(p.category)}</td><td>${money(Number(p.price))}</td><td>${Number(p.stock)}</td><td><span class="badge ${p.is_active?'on':'off'}">${p.is_active?'Active':'Inactive'}</span></td><td><div class="actions"><button onclick="openProduct('${p.id}')">Edit</button><button onclick="toggleActive('${p.id}')">${p.is_active?'Hide':'Publish'}</button><button onclick="deleteProduct('${p.id}')">Delete</button></div></td></tr>`).join("")||'<tr><td colspan="6">No matching products.</td></tr>'}
+    function renderProducts(){const rows=filtered();$("ptable").innerHTML='<tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr>'+rows.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center"><img class="thumb" src="${esc(p.image_url||placeholder())}" onerror="this.src='${placeholder()}'"><div><strong>${esc(p.name)}</strong><br><small class="muted">${esc(p.legacy_id||p.id)}</small></div></div></td><td>${esc(p.category)}</td><td>${money(Number(p.price))}</td><td>${Number(p.stock)}</td><td><span class="badge ${p.is_active?'on':'off'}">${p.is_active?'Active':'Inactive'}</span></td><td><div class="actions"><button onclick="openProduct('${p.id}')">Edit</button><button onclick="toggleActive('${p.id}')">${p.is_active?'Hide':'Publish'}</button><button onclick="deleteProduct('${p.id}')">Delete</button></div></td></tr>`).join("")||'<tr><td colspan="6">No matching products.</td></tr>'}
     ["search","categoryFilter","statusFilter"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",renderProducts));
 
-    function openProduct(id){const p=adminProducts.find(x=>x.id===id);$("productForm").reset();$("formMsg").textContent="";$("modalTitle").textContent=p?"Edit product":"Add product";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pCategory").value=p?.category||"";$("pPrice").value=p?.price??"";$("pStock").value=p?.stock??0;$("pSizes").value=(p?.sizes||[]).join(", ");$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";$("pActive").checked=p?.is_active??true;$("productModal").classList.add("open")}
+    function setPreview(url){$("imagePreview").src=url||placeholder()}
+    $("pImageFile").addEventListener("change",()=>{const file=$("pImageFile").files[0];if(!file)return;if(file.size>5*1024*1024){$("uploadMsg").textContent="Image is too large. Maximum size is 5 MB.";$("pImageFile").value="";return}const url=URL.createObjectURL(file);setPreview(url);$("uploadMsg").textContent=file.name+" selected. It will upload when you save the product."});
+
+    function openProduct(id){const p=adminProducts.find(x=>x.id===id);$("productForm").reset();$("formMsg").textContent="";$("uploadMsg").textContent="";$("modalTitle").textContent=p?"Edit product":"Add product";$("productId").value=p?.id||"";$("pName").value=p?.name||"";$("pCategory").value=p?.category||"";$("pPrice").value=p?.price??"";$("pStock").value=p?.stock??0;$("pSizes").value=(p?.sizes||[]).join(", ");$("pImage").value=p?.image_url||"";$("pDescription").value=p?.description||"";$("pActive").checked=p?.is_active??true;setPreview(p?.image_url||"");$("productModal").classList.add("open")}
     function closeProduct(){$("productModal").classList.remove("open")}
 
-    $("productForm").onsubmit=async e=>{e.preventDefault();const id=$("productId").value;const payload={name:$("pName").value.trim(),category:$("pCategory").value.trim(),price:Number($("pPrice").value),stock:Math.max(0,Math.floor(Number($("pStock").value))),sizes:$("pSizes").value.split(",").map(s=>s.trim()).filter(Boolean),image_url:$("pImage").value.trim()||null,description:$("pDescription").value.trim()||null,is_active:$("pActive").checked};if(!payload.name||!payload.category||!Number.isFinite(payload.price)){$("formMsg").textContent="Name, category and a valid price are required.";return}$("formMsg").textContent="Saving...";const result=id?await supabaseClient.from("products").update(payload).eq("id",id):await supabaseClient.from("products").insert(payload);if(result.error){$("formMsg").textContent=result.error.message;return}closeProduct();await loadProducts()};
+    async function uploadProductImage(file){
+      const {data:{user}}=await supabaseClient.auth.getUser();if(!user)throw new Error("Your session has expired. Please sign in again.");
+      const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");const path=`${user.id}/${crypto.randomUUID()}.${ext}`;
+      $("uploadMsg").textContent="Uploading image...";
+      const {error}=await supabaseClient.storage.from("product-images").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});
+      if(error)throw error;
+      const {data}=supabaseClient.storage.from("product-images").getPublicUrl(path);if(!data?.publicUrl)throw new Error("Could not create the image URL.");
+      $("uploadMsg").textContent="Image uploaded.";return data.publicUrl;
+    }
 
+    $("productForm").onsubmit=async e=>{
+      e.preventDefault();const id=$("productId").value;const btn=$("saveProductBtn");btn.disabled=true;$("formMsg").textContent="";
+      try{
+        let imageUrl=$("pImage").value.trim()||null;const file=$("pImageFile").files[0];if(file)imageUrl=await uploadProductImage(file);
+        const price=Number($("pPrice").value),stock=Math.max(0,Math.floor(Number($("pStock").value)));
+        const payload={name:$("pName").value.trim(),category:$("pCategory").value.trim(),price,stock,sizes:$("pSizes").value.split(",").map(s=>s.trim()).filter(Boolean),image_url:imageUrl,description:$("pDescription").value.trim()||null,is_active:$("pActive").checked};
+        if(!payload.name||!payload.category||!Number.isFinite(payload.price))throw new Error("Name, category and a valid price are required.");
+        $("formMsg").textContent="Saving product...";const result=id?await supabaseClient.from("products").update(payload).eq("id",id):await supabaseClient.from("products").insert(payload);if(result.error)throw result.error;
+        closeProduct();await loadProducts();
+      }catch(error){console.error(error);$("formMsg").textContent=error.message||"Could not save product."}finally{btn.disabled=false}
+    };
     async function toggleActive(id){const p=adminProducts.find(x=>x.id===id);if(!p)return;const {error}=await supabaseClient.from("products").update({is_active:!p.is_active}).eq("id",id);if(error){message(error.message);return}await loadProducts()}
     async function deleteProduct(id){const p=adminProducts.find(x=>x.id===id);if(!p||!confirm(`Delete “${p.name}”? This cannot be undone.`))return;const {error}=await supabaseClient.from("products").delete().eq("id",id);if(error){message(error.message);return}await loadProducts()}
 
-    function drawOrders(){const orders=load("sk_orders",[]);$("otable").innerHTML='<tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Action</th></tr>'+orders.map((o,i)=>`<tr><td>${esc(o.id)}</td><td>${esc(o.customer?.name)}<br>${esc(o.customer?.phone)}</td><td>${money(Number(o.total))}</td><td>${esc(o.status)}</td><td><select onchange="status(${i},this.value)"><option ${o.status==="Pending"?"selected":""}>Pending</option><option ${o.status==="Paid"?"selected":""}>Paid</option><option ${o.status==="Processing"?"selected":""}>Processing</option><option ${o.status==="Completed"?"selected":""}>Completed</option><option ${o.status==="Cancelled"?"selected":""}>Cancelled</option></select></td></tr>`).join("")||'<tr><td colspan="5">No orders yet.</td></tr>'}
-    function status(i,v){const o=load("sk_orders",[]);if(o[i]){o[i].status=v;save("sk_orders",o);drawOrders()}}
-
-    boot();
+    function drawOrders(){const orders=load("sk_orders",[]);if(!orders.length){$("otable").innerHTML='<tr><td>No local orders yet.</td></tr>';return}$("otable").innerHTML='<tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr>'+orders.map((o,i)=>`<tr><td>${esc(o.id||("#"+(i+1)))}</td><td>${esc(o.customer?.name||o.name||"—")}</td><td>${money(Number(o.total||0))}</td><td>${esc(o.status||"Pending")}</td></tr>`).join("")}
+    function load(key,fallback){try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch{return fallback}}
+    function money(n){return new Intl.NumberFormat("en-KE",{style:"currency",currency:"KES",maximumFractionDigits:2}).format(Number.isFinite(n)?n:0)}
+    document.addEventListener("DOMContentLoaded",boot);
   </script>
 </body>
 </html>
