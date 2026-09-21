@@ -1,34 +1,30 @@
 <!doctype html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <title>Your Bag | Sherie Kollections</title><link rel="stylesheet" href="css/style.css">
-    </head> 
-    <body>
-        <nav class="nav">
-            <div class="container nav-inner">
-                <a class="brand" href="index.html">SHERIE <span>KOLLECTIONS</span></a>
-                <a class="btn ghost" href="shop.html">Continue shopping</a>
-            </div>
-        </nav>
-        <main class="container">
-            <div class="section-head" style="margin-top:45px">
-                <div>
-                    <div class="eyebrow">Your selection</div>
-                    <h1>Your Bag</h1>
-                </div>
-            </div>
-            <div class="cart-layout">
-                <div class="card" id="items"></div>
-                <aside class="card summary">
-                    <h2>Summary</h2>
-                    <div class="line"><span>Subtotal</span><b id="sub"></b></div>
-                    <div class="line"><span>Delivery</span><b id="delivery"></b></div>
-                    <div class="total line"><span>Total</span><b id="total"></b></div>
-                    <a class="btn gold" style="width:100%;margin-top:15px" href="checkout.html">Proceed to checkout</a>
-                </aside>
-            </div>
-        </main>
-        <script src="js/app.js"></script><script>
-function draw(){let box=document.querySelector("#items");if(!cart.length){box.innerHTML='<div class="empty">Your bag is empty.<br><a class="btn gold" href="shop.html" style="margin-top:15px">Start shopping</a></div>';sub.textContent=delivery.textContent=total.textContent=money(0);return}box.innerHTML=cart.map((i,idx)=>{let p=products.find(x=>x.id===i.id);return `<div class="cart-row"><img src="${p.image}" onerror="this.src='images/placeholder.svg'"><div><b>${p.name}</b><div class="muted">${i.size||"One size"}</div><div class="price">${money(p.price)}</div></div><div class="qty"><button onclick="change(${idx},-1)">−</button><span>${i.qty}</span><button onclick="change(${idx},1)">+</button></div><button onclick="removeItem(${idx})">✕</button></div>`}).join("");let s=cart.reduce((a,i)=>a+products.find(p=>p.id===i.id).price*i.qty,0),d=s>=CONFIG.freeDeliveryAt?0:CONFIG.deliveryFee;sub.textContent=money(s);delivery.textContent=d?money(d):"FREE";total.textContent=money(s+d)}function change(i,n){let p=products.find(x=>x.id===cart[i].id);cart[i].qty=Math.max(1,Math.min(p.stock,cart[i].qty+n));save("sk_cart",cart);draw()}function removeItem(i){cart.splice(i,1);save("sk_cart",cart);draw()}draw();</script></body></html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Your Bag | Sherie Kollections</title><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<nav class="nav"><div class="container nav-inner"><a class="brand" href="index.html">SHERIE <span>KOLLECTIONS</span></a><a class="btn ghost" href="shop.html">Continue shopping</a></div></nav>
+<main class="container">
+<div class="section-head" style="margin-top:45px"><div><div class="eyebrow">Your selection</div><h1>Your Bag</h1></div></div>
+<div class="cart-layout">
+<div class="card" id="items"></div>
+<aside class="card summary"><h2>Summary</h2><div class="line"><span>Subtotal</span><b id="sub"></b></div><div class="line"><span>Delivery</span><b id="delivery"></b></div><div class="total line"><span>Total</span><b id="total"></b></div><a class="btn gold" style="width:100%;margin-top:15px" href="checkout.html">Proceed to checkout</a></aside>
+</div></main>
+<script src="js/app.js"></script>
+<script>
+function draw(){
+ const box=document.querySelector("#items");
+ if(!cart.length){box.innerHTML='<div class="empty">Your bag is empty.<br><a class="btn gold" href="shop.html" style="margin-top:15px">Start shopping</a></div>';sub.textContent=delivery.textContent=total.textContent=money(0);return}
+ box.innerHTML=cart.map((i,idx)=>{
+   const p=products.find(x=>x.id===i.id);
+   if(!p)return "";
+   return `<div class="cart-row"><img src="${p.image}" alt="${p.name}" onerror="this.src='images/placeholder.svg'"><div><b>${p.name}</b><div class="muted">${i.size||"One size"}</div><div class="price">${money(p.price)}</div></div><div class="qty"><button type="button" onclick="change(${idx},-1)">−</button><span>${i.qty}</span><button type="button" onclick="change(${idx},1)">+</button></div><button type="button" onclick="removeItem(${idx})">✕</button></div>`;
+ }).join("");
+ const s=cart.reduce((a,i)=>{const p=products.find(p=>p.id===i.id);return a+(p?p.price*i.qty:0)},0);
+ const d=s>=CONFIG.freeDeliveryAt?0:CONFIG.deliveryFee;
+ sub.textContent=money(s);delivery.textContent=d?money(d):"FREE";total.textContent=money(s+d);
+}
+function change(i,n){const p=products.find(x=>x.id===cart[i].id);if(!p)return;cart[i].qty=Math.max(1,Math.min(Number(p.stock)||1,cart[i].qty+n));save("sk_cart",cart);draw();updateCartCount()}
+function removeItem(i){cart.splice(i,1);save("sk_cart",cart);draw();updateCartCount()}
+draw();
+</script>
+</body></html>
