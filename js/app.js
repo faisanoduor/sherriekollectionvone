@@ -1,6 +1,6 @@
 
 /* Sherie Kollections shared vanilla JS store */
-const CONFIG = { mpesa: { paybill: "123456", account: "SHERIE", instructions: "Go to M-Pesa → Lipa na M-Pesa → Pay Bill → enter the Paybill and your order number." }, whatsapp: "254700000000", deliveryFee: 300, freeDeliveryAt: 5000 };
+const CONFIG = { mpesa: { paybill: "247247", account: "879884", instructions: "Go to M-Pesa → Lipa na M-Pesa → Pay Bill → enter Paybill 247247 and account number 879884." }, whatsapp: "254726879884", deliveryFee: 300, freeDeliveryAt: 5000 };
 const seedProducts = [
     { id: "p1", name: "Quality linen", category: "shirt", price: 1200, stock: "in stock", sizes: ["S", "M", "L", "XL"], image: "images/linenshirt1.jpeg", description: "White,black, skyblue, brown, jungle-green and grey." },
     { id: "p2", name: "Black Monks", category: "Shoes", price: 3200, stock: 6, sizes: ["36", "37", "38", "39", "40"], image: "images/monks1.jpeg", description: "Statement shoes with a refined quality accent." },
