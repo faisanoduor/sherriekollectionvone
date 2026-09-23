@@ -54,10 +54,17 @@
             };
             let orders = load("sk_orders", []); orders.push(order); save("sk_orders", orders); save("sk_cart", []);
             const method = fd.get("paymentMethod");
-            const text = method === "M-Pesa Paybill"
-                ? "Hello Sherie Kollections, I have placed order " + order.id + ". I will pay via M-Pesa Paybill " + CONFIG.mpesa.paybill + ", Account " + CONFIG.mpesa.account + ". Please confirm my order."
-                : "Hello Sherie Kollections, I would like to place order " + order.id + ". Please assist me with payment and order confirmation.";
-            location.href = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(text + "\nTotal: " + money(order.total) + "\nName: " + order.customer.name + "\nPhone: " + order.customer.phone);
+            if (method === "M-Pesa Paybill") {
+                const text = "Hello Sherie Kollections,\nI have placed order " + order.id +
+                    ".\nI will pay via M-Pesa Paybill " + CONFIG.mpesa.paybill +
+                    ", Account " + CONFIG.mpesa.account +
+                    ".\nTotal: " + money(order.total) +
+                    "\nName: " + order.customer.name +
+                    "\nPhone: " + order.customer.phone;
+                location.href = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(text);
+            } else {
+                location.href = waLink(order);
+            }
         };
     </script>
 </body>
