@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="nav"><div class="container nav-inner"><a class="brand" href="index.html">SHERIE <span>KOLLECTIONS</span></a></div></nav>
+    <nav class="nav"><div class="container nav-inner"><a class="brand" href="index.html">SHERRIE <span>KOLLECTIONS</span></a></div></nav>
     <main class="container section">
         <div class="eyebrow">Almost yours</div><h1>Checkout</h1>
         <div class="cart-layout">
@@ -55,7 +55,7 @@
             let orders = load("sk_orders", []); orders.push(order); save("sk_orders", orders); save("sk_cart", []);
             const method = fd.get("paymentMethod");
             if (method === "M-Pesa Paybill") {
-                const text = "Hello Sherie Kollections,\nI have placed order " + order.id +
+                const text = "Hello Sherrie Kollections,\nI have placed order " + order.id +
                     ".\nI will pay via M-Pesa Paybill " + CONFIG.mpesa.paybill +
                     ", Account " + CONFIG.mpesa.account +
                     ".\nTotal: " + money(order.total) +
